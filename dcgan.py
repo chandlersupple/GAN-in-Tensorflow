@@ -1,28 +1,30 @@
-
+# Chandler Supple, October 24, 2018
 
 import tensorflow as tf
 import numpy as np
+import pickle
 from keras.preprocessing import image
 sess = tf.InteractiveSession()
         
-r_cond = tf.AUTO_REUSE
-
-def batch(batch_size, batch_iter):    
-    batch_iarr = []
-    for inst in range (batch_iter * batch_size + 1, batch_iter * batch_size + batch_size + 1):
-        image_inst = image.load_img(('dog.%s.jpg' %(inst)), target_size = [32, 32])
-        inst_arr = image.img_to_array(image_inst)
-        batch_iarr.append(inst_arr)
-    
-    return batch_iarr
-
-def all_batches(batch_size, batches_in_epoch):
+def ret_data(files, class_num, batch_size):
+    one_data = []
+    for file in range (len(files)):
+        with open(files[file], 'rb') as fo:
+            unload = pickle.load(fo, encoding='bytes')
+        
+        all_data = unload.get(b'data')
+        all_labels = unload.get(b'labels')
+        
+        for imag in range (len(all_data)):
+            if all_labels[imag] == class_num:
+                one_data.append(all_data[imag])
+            
     batches = []
-    for batch_iter in range (batches_in_epoch):
-        b = batch(batch_size, batch_iter)
-        b = 2 * (b - np.min(b)) / np.ptp(b) - 1
-        batches.append(b)
-    
+    for batch_iter in range (len(one_data) // batch_size):
+        b_iw = one_data[batch_size * batch_iter: (batch_size * batch_iter) + 32]
+        resh_b_iw = np.reshape(b_iw, [batch_size, 32, 32, 3])
+        batches.append(resh_b_iw)
+        
     return batches
     
 def cnv_op(x, f, kernel, padding, stride= (2, 2)):
@@ -95,9 +97,6 @@ def discriminator(x, tr):
     return l_one
 
 noise_num = 100
-epoch = 128
-batch_size = 32
-batches_in_epoch = 4000 // batch_size
 
 x = tf.placeholder(tf.float32, shape= [None, 32, 32, 3])
 z = tf.placeholder(tf.float32, shape= [None, noise_num])
@@ -123,7 +122,11 @@ d_opt = tf.train.AdamOptimizer(0.001).minimize(d_loss, var_list= d_vars)
 sess.run(tf.global_variables_initializer())
     
 images = []
-batches = all_batches(batch_size, batches_in_epoch)
+epoch = 128
+batch_size = 32
+files = ['data_batch_1', 'data_batch_2', 'data_batch_3', 'data_batch_4', 'data_batch_5']
+batches = ret_data(files, 6, batch_size)
+batches_in_epoch = len(batches)
 
 for epoch_iter in range (epoch):
     for batch_iter in range (batches_in_epoch):
