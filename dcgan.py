@@ -6,6 +6,17 @@ import pickle
 from keras.preprocessing import image
 sess = tf.InteractiveSession()
         
+def normalize(li, r):
+  l = np.array(li) 
+  a = np.max(l)
+  c = np.min(l)
+  b = r[1]
+  d = r[0]
+
+  m = (b - d) / (a - c)
+  pslope = (m * (l - c)) + d
+  return pslope
+
 def ret_data(files, class_num, batch_size):
     one_data = []
     for file in range (len(files)):
@@ -25,6 +36,8 @@ def ret_data(files, class_num, batch_size):
         resh_b_iw = np.reshape(b_iw, [batch_size, 32, 32, 3])
         batches.append(resh_b_iw)
         
+    batches = normalize(batches, [-1, 1])
+                
     return batches
     
 def cnv_op(x, f, kernel, padding, stride= (2, 2)):
@@ -106,9 +119,9 @@ g = generator(z, t)
 dr = discriminator(x, t)
 dg = discriminator(g, t)
 
-g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dg, labels= tf.zeros_like(dg)))
-dr_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dr, labels= tf.zeros_like(dr)))
-dg_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dg, labels= tf.ones_like(dg)))
+g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dg, labels= tf.ones_like(dg)))
+dr_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dr, labels= tf.ones_like(dr)))
+dg_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dg, labels= tf.zeros_like(dg)))
     
 d_loss = dr_loss + dg_loss
 
@@ -139,6 +152,6 @@ for epoch_iter in range (epoch):
             gl = sess.run(g_loss, feed_dict= {z: np.random.normal(size= [batch_size, noise_num]), t: 0})
             print('Epoch: %s, Batch %s / %s, D-loss: %s, G-loss: %s' %(epoch_iter, batch_iter, batches_in_epoch, dl, gl))
             
-            g_img = 255 * sess.run(g, feed_dict= {z: np.random.normal(size= [1, noise_num]), t: 0})
-            g_img = image.array_to_img(np.reshape(g_img, [32, 32, 3])) 
+            g_img = sess.run(g, feed_dict= {z: np.random.normal(size= [1, noise_num]), t: 0})
+            g_img = image.array_to_img(255 * normalize(np.reshape(g_img, [32, 32, 3]), [0, 1]))
             images.append(g_img)
