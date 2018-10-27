@@ -2,7 +2,7 @@ The listed GANs are based on Ian Goodfellow's paper, "Generative Adversarial Net
 
 References:
 
-https://github.com/soumith/ganhacks <-- Exceptionally helpful
+https://github.com/soumith/ganhacks
 
 https://medium.freecodecamp.org/an-intuitive-introduction-to-generative-adversarial-networks-gans-7a2264a81394
 
