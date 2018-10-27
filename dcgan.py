@@ -136,7 +136,7 @@ for epoch_iter in range (epoch):
         sess.run(g_opt, feed_dict= {z: np.random.normal(size= [batch_size, noise_num]), t: 1})
         sess.run(d_opt, feed_dict= {x: batch_xy, z: np.random.normal(size= [batch_size, noise_num]), t: 1})
         
-        if batch_iter % 1 == 0:
+        if batch_iter % 15 == 0:
             dl = sess.run(d_loss, feed_dict= {x: batch_xy, z: np.random.normal(size= [batch_size, noise_num]), t: 0})
             gl = sess.run(g_loss, feed_dict= {z: np.random.normal(size= [batch_size, noise_num]), t: 0})
             print('Epoch: %s, Batch %s / %s, D-loss: %s, G-loss: %s' %(epoch_iter, batch_iter, batches_in_epoch, dl, gl))
