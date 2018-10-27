@@ -84,15 +84,15 @@ def discriminator(x, tr):
         else:
             t = False
         
-        conv_one = cnv_op(x, 64, (4, 4), padding= 'same')
+        conv_one = cnv_op(x, 32, (4, 4), padding= 'same')
         conv_one = tf.layers.batch_normalization(conv_one, training= t)
         conv_one = tf.nn.leaky_relu(conv_one)
         
-        conv_two = cnv_op(conv_one, 64, (4, 4), padding= 'same')
+        conv_two = cnv_op(conv_one, 32, (4, 4), padding= 'same')
         conv_two = tf.layers.batch_normalization(conv_two, training= t)
         conv_two = tf.nn.leaky_relu(conv_two)
         
-        conv_three = cnv_op(conv_two, 64, (4, 4), padding= 'same')
+        conv_three = cnv_op(conv_two, 32, (4, 4), padding= 'same')
         conv_three = tf.nn.softmax(conv_three)
         
         l_one = tf.layers.dense(conv_three, 1)
@@ -109,8 +109,10 @@ g = generator(z, t)
 dr = discriminator(x, t)
 dg = discriminator(g, t)
 
+dr_compar = tf.zeros_like(dr) * (0.9)
+
 g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dg, labels= tf.zeros_like(dg)))
-dr_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dr, labels= tf.zeros_like(dr)))
+dr_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dr, labels= dr_compar))
 dg_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dg, labels= tf.ones_like(dg)))
     
 d_loss = dr_loss + dg_loss
@@ -136,7 +138,7 @@ for epoch_iter in range (epoch):
         sess.run(g_opt, feed_dict= {z: np.random.normal(size= [batch_size, noise_num]), t: 1})
         sess.run(d_opt, feed_dict= {x: batch_xy, z: np.random.normal(size= [batch_size, noise_num]), t: 1})
         
-        if batch_iter % 15 == 0:
+        if batch_iter % 25 == 0:
             dl = sess.run(d_loss, feed_dict= {x: batch_xy, z: np.random.normal(size= [batch_size, noise_num]), t: 0})
             gl = sess.run(g_loss, feed_dict= {z: np.random.normal(size= [batch_size, noise_num]), t: 0})
             print('Epoch: %s, Batch %s / %s, D-loss: %s, G-loss: %s' %(epoch_iter, batch_iter, batches_in_epoch, dl, gl))
@@ -144,4 +146,3 @@ for epoch_iter in range (epoch):
             g_img = sess.run(g, feed_dict= {z: np.random.normal(size= [1, noise_num]), t: 0})
             g_img = image.array_to_img(255 * normalize(np.reshape(g_img, [64, 64, 3]), [0, 1]))
             images.append(g_img)
-        
