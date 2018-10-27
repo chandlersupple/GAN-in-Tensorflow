@@ -109,11 +109,11 @@ g = generator(z, t)
 dr = discriminator(x, t)
 dg = discriminator(g, t)
 
-dr_compar = tf.zeros_like(dr) * (0.9)
+dr_compar = tf.ones_like(dr) * (0.9)
 
-g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dg, labels= tf.zeros_like(dg)))
+g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dg, labels= tf.ones_like(dg)))
 dr_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dr, labels= dr_compar))
-dg_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dg, labels= tf.ones_like(dg)))
+dg_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits= dg, labels= tf.zeros_like(dg)))
     
 d_loss = dr_loss + dg_loss
 
