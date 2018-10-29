@@ -1,4 +1,4 @@
-The listed GANs are based on Ian Goodfellow's paper, "Generative Adversarial Networks," which can be found on Arxiv with the following link: https://arxiv.org/pdf/1406.2661.pdf. The vanilla GAN is composed of 'dense' layers, relating to a vanilla neural network. The second model is a deep convolutional GAN (DCGAN) which involves convolutional and deconvolutional layers.
+The listed GANs are based on Ian Goodfellow's paper, "Generative Adversarial Networks," which can be found on Arxiv with the following link: https://arxiv.org/pdf/1406.2661.pdf. The vanilla GAN is composed of 'dense' layers, relating to a vanilla neural network. The second model is a deep convolutional GAN (DCGAN) which involves convolutional and deconvolutional layers. The DCGAN minimizes the Wasserstein distances as opposed to a JS divergence. 
 
 References:
 
